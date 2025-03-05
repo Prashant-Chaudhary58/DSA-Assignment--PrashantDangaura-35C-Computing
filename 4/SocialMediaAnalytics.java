@@ -1,5 +1,7 @@
 import java.util.*;
 import java.util.regex.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class SocialMediaAnalytics {
 
@@ -34,6 +36,19 @@ public class SocialMediaAnalytics {
         }
         scanner.close();
 
+        // Filter tweets by date (February 2024)
+        List<Tweet> februaryTweets = filterTweetsByDate(tweets, "2024-02");
+
+        // Recalculate hashtag counts based on filtered tweets
+        hashtagCount.clear();
+        for (Tweet tweet : februaryTweets) {
+            Matcher matcher = hashtagPattern.matcher(tweet.tweetText);
+            while (matcher.find()) {
+                String hashtag = matcher.group().toLowerCase();
+                hashtagCount.put(hashtag, hashtagCount.getOrDefault(hashtag, 0) + 1);
+            }
+        }
+
         // Sort hashtags by count (descending) and then by name (descending)
         List<Map.Entry<String, Integer>> sortedHashtags = new ArrayList<>(hashtagCount.entrySet());
         sortedHashtags.sort((a, b) -> {
@@ -50,9 +65,9 @@ public class SocialMediaAnalytics {
         }
         System.out.println("+------------+-------+");
 
-        // Example usage of Tweet data from 4a (if needed)
-        System.out.println("\nStored Tweets:");
-        for (Tweet tweet : tweets) {
+        // Display stored tweets
+        System.out.println("\nStored Tweets (February 2024):");
+        for (Tweet tweet : februaryTweets) {
             System.out.println(tweet);
         }
     }
@@ -83,7 +98,18 @@ public class SocialMediaAnalytics {
         }
     }
 
-    // Inner class to represent a Tweet (for 4a compatibility)
+    // Helper method for date filtering
+    private static List<Tweet> filterTweetsByDate(List<Tweet> tweets, String yearMonth) {
+        List<Tweet> filteredTweets = new ArrayList<>();
+        for (Tweet tweet : tweets) {
+            if (tweet.tweetDate.startsWith(yearMonth)) {
+                filteredTweets.add(tweet);
+            }
+        }
+        return filteredTweets;
+    }
+
+    // Inner class to represent a Tweet
     static class Tweet {
         int userId;
         int tweetId;
